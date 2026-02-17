@@ -28,6 +28,29 @@ with st.sidebar:
     model = st.selectbox("Modelo Gemini", ["gemini-2.5-flash", "gemini-2.5-pro", "gemini-1.5-pro", "gemini-1.5-flash"], index=0)
     max_results = st.slider("Resultados Tavily", min_value=3, max_value=10, value=5, step=1)
 
+def content_to_text(content) -> str:
+    """Normaliza msg.content (puede ser str o list[parts]) a str."""
+    if content is None:
+        return ""
+    if isinstance(content, str):
+        return content
+    if isinstance(content, list):
+        chunks = []
+        for part in content:
+            if isinstance(part, str):
+                chunks.append(part)
+            elif isinstance(part, dict):
+                # Formato típico: {"type": "text", "text": "..."}
+                if "text" in part and isinstance(part["text"], str):
+                    chunks.append(part["text"])
+                else:
+                    chunks.append(str(part))
+            else:
+                chunks.append(str(part))
+        return "\n".join(chunks)
+    return str(content)
+
+
 apply_runtime_overrides(
     google_api_key=google_api_key.strip() or None,
     tavily_api_key=tavily_api_key.strip() or None,
@@ -93,20 +116,23 @@ if run_btn:
 
             if isinstance(event, dict) and "messages" in event and event["messages"]:
                 msg = event["messages"][-1]
-                content = getattr(msg, "content", "")
-                if content:
-                    if show_all_messages:
-                        transcript += "\n\n---\n\n" + content
-                        messages_box.markdown(transcript)
-                    else:
-                        messages_box.markdown(content)
-                    final_text = content
+                raw_content = getattr(msg, "content", "")
+                content = content_to_text(raw_content)
+            if content:
+                if show_all_messages:
+                    transcript += "\n\n---\n\n" + content
+                    messages_box.markdown(transcript)
+                else:
+                    messages_box.markdown(content)
+                final_text = content
+
 
             if show_events:
                 events_box.markdown("### 🧵 Trace local\n" + trace.to_markdown(max_entries=120))
 
         if final_text:
-            final_box.markdown("### ✅ Artículo final\n" + final_text)
+            final_box.markdown("### ✅ Artículo final\n" + str(final_text))
+
         else:
             final_box.warning("No apareció texto final. Activa 'mensajes intermedios' para depurar.")
 
