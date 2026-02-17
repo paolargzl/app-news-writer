@@ -9,8 +9,8 @@ from news_writer.tracing import LocalTrace
 
 st.set_page_config(page_title="Conchita News Writer", page_icon="📰", layout="wide")
 
-st.title("📰 Conchita News Writer")
-st.caption("LangGraph + Gemini + Tavily. Genera un artículo con trace.")
+st.title("📊 Trends Analyst")
+st.caption("LangGraph multi-agent workflow that researches signals, builds strategic insights, and generates a trend report.")
 
 cfg = AppConfig()
 
@@ -69,7 +69,7 @@ if missing:
 
 user_prompt = st.text_area(
     "¿Qué artículo quieres generar?",
-    value="Escribe un artículo sobre las tendencias más recientes en IA aplicadas a educación superior, con foco en Europa.",
+    value="Analiza las tendencias actuales de IA generativa en educación europea.",
     height=140,
 )
 

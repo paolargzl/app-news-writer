@@ -9,7 +9,8 @@ from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_community.tools.tavily_search import TavilySearchResults
 from langchain_google_genai import ChatGoogleGenerativeAI
 
-from .prompts import SEARCH_SYSTEM, OUTLINER_SYSTEM, WRITER_SYSTEM
+from .prompts import RESEARCHER_SYSTEM, STRATEGIST_SYSTEM, WRITER_SYSTEM
+
 
 
 class AgentState(TypedDict):
@@ -35,8 +36,9 @@ def build_graph(*, model: str = "gemini-2.5-flash", tavily_max_results: int = 5)
 
     llm = ChatGoogleGenerativeAI(model=model)
 
-    search_agent = _create_agent(llm, tools, SEARCH_SYSTEM)
-    outliner_agent = _create_agent(llm, [], OUTLINER_SYSTEM)
+    search_agent = _create_agent(llm, tools, RESEARCHER_SYSTEM)
+    outliner_agent = _create_agent(llm, [], STRATEGIST_SYSTEM)
+
     writer_agent = _create_agent(llm, [], WRITER_SYSTEM)
 
     def agent_node(state: AgentState, agent, name: str) -> Dict[str, Any]:
